@@ -5,7 +5,6 @@
 // @author      BlackpearlBot
 // @icon        https://blackpearl.biz/favicon.png
 // @include     https://blackpearl.biz/*
-// @include     https://*.google.com/*
 // @require     https://code.jquery.com/jquery-3.4.1.min.js
 // @grant       GM_addStyle
 // @grant       GM_xmlhttpRequest
@@ -16,10 +15,10 @@
 var Generate_Template = `
 <button id="ShowTemplate" name="template_button" style="display:none" type="button">Show</button>
 <div id="ApkGenerator">
-<input type="text" id="gplaylink" value="" class="input" placeholder="Google Play Store Link">
-<input type="text" id="modinfo" value="" class="input" placeholder="Mod Details">
-<input type="text" id="virustotal" value="" class="input" placeholder="VirusTotal Link">
-<input type="text" id="ddl" value="" class="input" placeholder="Download Link">
+<input type="text" id="gplaylink" value="" class="input" placeholder="Google Play Store Link" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Google Play Store Link'">
+<input type="text" id="modinfo" value="" class="input" placeholder="Mod Details" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Mod Details'">
+<input type="text" id="virustotal" value="" class="input" placeholder="VirusTotal Link" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Screenshot Links'">
+<input type="text" id="ddl" value="" class="input" placeholder="Download Link" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Download Link'">
 <div id="textarea_divider">&nbsp;</div>
 <span>DownCloud</span>
 <label class="switch">
@@ -38,7 +37,10 @@ HidePosts
 
 var temphtml = document.getElementsByTagName("dd")[0];
 temphtml.innerHTML += Generate_Template;
-document.getElementsByName("title")[0].className += "input";
+var titlechange = document.getElementsByName("title")[0];
+if (titlechange){
+    titlechange.className += "input";
+}
 
 
 $(document).on('keydown', function(event) {
@@ -65,6 +67,7 @@ $("#Generate").click ( function () {
     var ddl = $("#ddl").val ();
     var hidereactscore = $("#HideReactScore").val ();
     var hideposts = $("#HidePosts").val ();
+    //* Error Messages *//
     if (!link) {
         alert("Gotta give us a Google Play link at least!");
     } else if (!ddl) {
@@ -72,6 +75,7 @@ $("#Generate").click ( function () {
     } else if (!VT){
         alert("You Don't Have Any VirusTotal? It's Required!");
     } else {
+        //* Add BBcode if checked/changed *//
         if (Downcloud.checked){
             var ddlsplit = ddl.split(" ");
             ddl = ''
@@ -88,80 +92,84 @@ $("#Generate").click ( function () {
         if (hideposts !== "0"){
             ddl = `[HIDEPOSTS=${hideposts}]` + ddl + '[/HIDEPOSTS]'
         }
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: link,
-        onload: function(response) {
-            var test = response.responseText;
-            let parser = new DOMParser();
-            let parsedHtml = parser.parseFromString(test, 'text/html');
-            //* Grab all images & find logo *//
-            var images = parsedHtml.getElementsByTagName("img");
-            for (var logoimg of images){
-                var logoattr = logoimg.alt;
-                if (logoattr == "Cover art") {
-                    var logo = "[CENTER][IMG width='100px']" + logoimg.srcset.replace("-rw", '').replace(" 2x",'') + "[/IMG]\n";
-                }
-            }
-            //* App Name *//
-            var title = "[COLOR=rgb(26, 162, 96)][B][SIZE=6]" + parsedHtml.getElementsByClassName("AHFaub")[0].innerText + "[/SIZE][/B][/COLOR]\n";
-            //* rating *//
-            var rating = "[IMG width='40px']https://i.postimg.cc/g28wfSTs/630px-Green-star-41-108-41-svg.png[/IMG][SIZE=6][B]"+
-            parsedHtml.getElementsByClassName("BHMmbe")[0].innerText + "/5[/B]\n";
-            //* Amount of Reviews *//
-            var reviewscount = "[IMG width='40px']https://i.postimg.cc/L617X3tq/Webp-net-resizeimage.png[/IMG]"+
-            parsedHtml.getElementsByClassName("O3QoBc hzfjkd")[0].nextSibling.innerHTML + "[/SIZE][/CENTER]\n";
-            //* Grab SS from images (Only grab 3!) *//
-            var screenshots = [];
-            for (var screen of images){
-                var screenattr = screen.alt;
-                if (screenattr == "Screenshot Image") {
-                    if (!screen.dataset | (!screen.dataset.srcset)){
-                        screenshots.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
-                    } else {
-                        screenshots.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+        //* Get GPS page & details for post *//
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: link,
+            onload: function(response) {
+                var test = response.responseText;
+                let parser = new DOMParser();
+                let parsedHtml = parser.parseFromString(test, 'text/html');
+                //* Grab all images & find logo *//
+                var images = parsedHtml.getElementsByTagName("img");
+                for (var logoimg of images){
+                    var logoattr = logoimg.alt;
+                    if (logoattr == "Cover art") {
+                        var logo = "[CENTER][IMG width='100px']" + logoimg.srcset.replace("-rw", '').replace(" 2x",'') + "[/IMG]\n";
                     }
                 }
-                if (screenshots.length == "3") {
-                    break;
+                //* App Name *//
+                var name = parsedHtml.getElementsByClassName("AHFaub")[0].innerText;
+                var title = "[COLOR=rgb(26, 162, 96)][B][SIZE=6]" + name + "[/SIZE][/B][/COLOR]\n";
+                //* rating *//
+                var rating = "[IMG width='40px']https://i.postimg.cc/g28wfSTs/630px-Green-star-41-108-41-svg.png[/IMG][SIZE=6][B]"+
+                    parsedHtml.getElementsByClassName("BHMmbe")[0].innerText + "/5[/B]\n";
+                //* Amount of Reviews *//
+                var reviewscount = "[IMG width='40px']https://i.postimg.cc/L617X3tq/Webp-net-resizeimage.png[/IMG]"+
+                    parsedHtml.getElementsByClassName("O3QoBc hzfjkd")[0].nextSibling.innerHTML + "[/SIZE][/CENTER]\n";
+                //* Grab SS from images (Only grab 3!) *//
+                var screenshots = [];
+                for (var screen of images){
+                    var screenattr = screen.alt;
+                    if (screenattr == "Screenshot Image") {
+                        if (!screen.dataset | (!screen.dataset.srcset)){
+                            screenshots.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+                        } else {
+                            screenshots.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+                        }
+                    }
+                    if (screenshots.length == "3") {
+                        break;
+                    }
+                }
+                var screens = "";
+                for (var ss of screenshots) {
+                    screens += '[IMG width="300px"]'+ss+'[/IMG]';
+                }
+                screens = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Screenshots[/B][/COLOR][/SIZE][/INDENT][CENTER]" + screens + "[/CENTER]\n[hr][/hr]\n"
+                //* App Description *//
+                var description = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Description[/B][/COLOR][/SIZE][/INDENT]\n [SPOILER='App Description']\n" +
+                    parsedHtml.getElementsByClassName("DWPxHb")[0].textContent + "\n[/SPOILER]\n[hr][/hr]\n";
+                var dev = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]\n[LIST]\n[*][B]Developer: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
+                var category = "\n[*][B]Category: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
+                var ContentRating = "\n[*][B]Content Rating: [/B] " + parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
+                var requiredAndroid = "\n[*][B]Required Android Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[9].textContent;
+                var size = "\n[*][B]Size: [/B] " + parsedHtml.getElementsByClassName("htlgb")[3].textContent + " (Taken from the Google Play Store)";
+                var LatestPlayStoreVersion = "\n[*][B]Latest Google Play Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[7].textContent + "\n[/LIST]\n";
+                link = "[URL=" + link + "][IMG width='250px']https://i.postimg.cc/mrWtVGwr/image.png[/IMG][/URL]\n[hr][/hr]\n";
+                //* Don't add modinfo line if not needed *//
+                if (modinfo){
+                    modinfo = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Mod Info[/B][/COLOR][/SIZE][/INDENT]\n" + modinfo + "[hr][/hr]\n";
+                } else {
+                    modinfo = ""
+                }
+                VT = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Virustotal[/B][/COLOR][/SIZE][/INDENT]\n[DOWNCLOUD]" + VT + "[/DOWNCLOUD]\n[hr][/hr]\n";
+                ddl = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Download Link[/B][/COLOR][/SIZE][/INDENT]\n[CENTER]\n" + ddl + "\n[/CENTER]";
+                var dump = `${logo}${title}${rating}${reviewscount}${screens}${description}${dev}${category}${ContentRating}${requiredAndroid}${size}${LatestPlayStoreVersion}${link}${modinfo}${VT}${ddl}`
+                GM_setClipboard (dump);
+                //* Try to paste to page. Alert user if using wrong mode *//
+                try {
+                    document.getElementsByName("message")[0].value = dump;
+                } catch(err) {
+                    alert('You should be running this in BBCode Mode. Check the Readme for more information!\n' + err);
+                } finally {
+                    var xf_title_value = document.getElementById("title").value;
+                    if (!xf_title_value){
+                        document.getElementById("title").value = name;
+                    }
                 }
             }
-            var screens = "";
-            for (var ss of screenshots) {
-                screens += '[IMG width="300px"]'+ss+'[/IMG]';
-            }
-            screens = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Screenshots[/B][/COLOR][/SIZE][/INDENT][CENTER]" + screens + "[/CENTER]\n[hr][/hr]\n"
-            //* App Description *//
-            var description = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Description[/B][/COLOR][/SIZE][/INDENT]\n [SPOILER='App Description']\n" +
-            parsedHtml.getElementsByClassName("DWPxHb")[0].textContent + "\n[/SPOILER]\n[hr][/hr]\n";
-            var dev = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]\n[LIST]\n[*][B]Developer: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
-            var category = "\n[*][B]Category: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
-            var size = "\n[*][B]Size: [/B] " + parsedHtml.getElementsByClassName("htlgb")[3].textContent + " (Taken from the Google Play Store)";
-            var requiredAndroid = "\n[*][B]Required Android Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[9].textContent;
-            var ContentRating = "\n[*][B]Content Rating: [/B] " + parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
-            var LatestPlayStoreVersion = "\n[*][B]Latest Google Play Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[7].textContent + "\n[/LIST]\n";
-            link = "[URL=" + link + "][IMG width='250px']https://i.postimg.cc/mrWtVGwr/image.png[/IMG][/URL]\n[hr][/hr]\n";
-            if (modinfo){
-                modinfo = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Mod Info[/B][/COLOR][/SIZE][/INDENT]\n" + modinfo + "[hr][/hr]\n";
-            } else {
-                modinfo = ""
-            }
-            VT = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Virustotal[/B][/COLOR][/SIZE][/INDENT]\n[DOWNCLOUD]" + VT + "[/DOWNCLOUD]\n[hr][/hr]\n";
-            ddl = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Download Link[/B][/COLOR][/SIZE][/INDENT]\n[CENTER]\n" + ddl + "\n[/CENTER]";
-            var dump = `${logo}${title}${rating}${reviewscount}${screens}${description}${dev}${category}${ContentRating}${requiredAndroid}${size}${LatestPlayStoreVersion}${link}${modinfo}${VT}`
-            GM_setClipboard (dump);
-            try {
-                document.getElementsByName("message")[0].value = dump;
-            } catch(err) {
-                alert('You should be running this in BBCode Mode. Check the Readme for more information!\n' + err);
-            } finally {
-                var xf_title_value = document.getElementById("title").value;
-                if (!xf_title_value){
-                    document.getElementById("title").value = title;
-                }
-            }
-        }
-    });}
+        });}
 });
 
 //--- CSS styles make it work...
