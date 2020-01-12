@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Blackpearl APK Scrapper
-// @version     1.0.1
+// @version     1.0.2
 // @description Android App Template
 // @author      BlackpearlBot
 // @icon        https://blackpearl.biz/favicon.png
@@ -10,6 +10,7 @@
 // @grant       GM_addStyle
 // @grant       GM_xmlhttpRequest
 // @grant       GM_setClipboard
+// @run-at      document-end
 // ==/UserScript==
 
 var Generate_Template = `
@@ -37,22 +38,23 @@ HidePosts
 
 var temphtml = document.getElementsByTagName("dd")[0];
 temphtml.innerHTML += Generate_Template;
+document.getElementsByName("title")[0].className += "input";
 
 
 $(document).on('keydown', function(event) {
     if (event.key == "Escape") {
         $("#OmdbGenerator").hide ();
-        document.getElementById("gmShowTemplate").style.display = "block";
+        document.getElementById("ShowTemplate").style.display = "block";
     }
 });
 
-$("#gmHideTemplate").click ( function () {
-    document.getElementById("gmShowTemplate").style.display = "block";
+$("#HideTemplate").click ( function () {
+    document.getElementById("ShowTemplate").style.display = "block";
     $("#OmdbGenerator").hide ();
 });
 
-$("#gmShowTemplate").click ( function () {
-    document.getElementById("gmShowTemplate").style.display = "none";
+$("#ShowTemplate").click ( function () {
+    document.getElementById("ShowTemplate").style.display = "none";
     $("#OmdbGenerator").show ();
 });
 
@@ -63,95 +65,103 @@ $("#Generate").click ( function () {
     var ddl = $("#ddl").val ();
     var hidereactscore = $("#HideReactScore").val ();
     var hideposts = $("#HidePosts").val ();
-GM_xmlhttpRequest({
-method: "GET",
-url: link,
-onload: function(response) {
-var test = response.responseText;
-let parser = new DOMParser();
-let parsedHtml = parser.parseFromString(test, 'text/html');
-var images = parsedHtml.getElementsByTagName("img");
-for (var logoimg of images){
-    var logoattr = logoimg.alt;
-        if (logoattr == "Cover art") {
-            var logo = logoimg.srcset.replace("-rw", '').replace(" 2x",'');
-        }
-}
-var title = parsedHtml.getElementsByClassName("AHFaub")[0].innerText;
-var dev = parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
-var category = parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
-var screens = [];
-for (var screen of images){
-    var screenattr = screen.alt;
-    if (screenattr == "Screenshot Image") {
-        if (!screen.dataset | (!screen.dataset.srcset)){
-            screens.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+    if (!link) {
+        alert("Gotta give us a Google Play link at least!");
+    } else if (!ddl) {
+        alert("Uh Oh! You Forgot Your Download Link! That's Pretty Important...");
+    } else if (!VT){
+        alert("You Don't Have Any VirusTotal? It's Required!");
+    } else {
+        if (Downcloud.checked){
+            var ddlsplit = ddl.split(" ");
+            ddl = ''
+            for (var dls of ddlsplit) {
+                ddl += `[DOWNCLOUD]${dls}[/DOWNCLOUD]\n`;
+            }
         } else {
-            screens.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
-          }
-    }
-}
-var SL = screens.length;
-var Sc = "";
-  for (var i=0; i<SL; i++) {
-  Sc += '[IMG width="300px"]'+screens[i]+'[/IMG]';
-  }
-var discription = parsedHtml.getElementsByClassName("DWPxHb")[0].textContent;
-var rating = parsedHtml.getElementsByClassName("BHMmbe")[0].innerText;
-var reviewscount = parsedHtml.getElementsByClassName("O3QoBc hzfjkd")[0].nextSibling.innerHTML;
-var size = parsedHtml.getElementsByClassName("htlgb")[3].textContent;
-var requiredAndroid = parsedHtml.getElementsByClassName("htlgb")[9].textContent;
-var ContentRating = parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
-var LatestPlayStoreVersion = parsedHtml.getElementsByClassName("htlgb")[7].textContent;
-var dump = `[CENTER][IMG width="100px"]${logo}[/IMG]
-[COLOR=rgb(26, 162, 96)][B][SIZE=6] ${title}[/SIZE][/B][/COLOR]
-[IMG width="30px"]https://i.postimg.cc/g28wfSTs/630px-Green-star-41-108-41-svg.png[/IMG][SIZE=6][B]${rating}[/B]/5
-[IMG width="40px"]https://i.postimg.cc/kg6NDvhR/person-male.png[/IMG]${reviewscount}[/SIZE]
-[/CENTER]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Screenshots[/B][/COLOR][/SIZE][/INDENT]
-[CENTER]${Sc}[/CENTER]
-
-[hr][/hr]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Description[/B][/COLOR][/SIZE][/INDENT]
-[SPOILER='App Description']
-${discription}
-[/SPOILER]
-[hr][/hr]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]
-
-[LIST]
-[*][B]Developer: [/B] ${dev}
-[*][B]Category: [/B] ${category}
-[*][B]Content Rating: [/B] ${ContentRating}
-[*][B]Required Android Version: [/B] ${requiredAndroid}
-[*][B]Size: [/B] ${size}
-[*][B]Latest Google Play Version: [/B] ${LatestPlayStoreVersion}
-[URL=${link}][IMG width="250px"]https://i.postimg.cc/mrWtVGwr/image.png[/IMG][/URL]
-[/LIST]
-[hr][/hr]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Mod Info[/B][/COLOR][/SIZE][/INDENT]
-${modinfo}
-[hr][/hr]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Virustotal[/B][/COLOR][/SIZE][/INDENT]
-[DOWNCLOUD]${VT}[/DOWNCLOUD]
-[hr][/hr]
-[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Download Link[/B][/COLOR][/SIZE][/INDENT]
-[CENTER][HIDEPOSTS=1][HIDEREACTSCORE=10][HIDEREACT=1,2,3,4,5,6]
-[DOWNCLOUD]drive.google.com[/DOWNCLOUD]
-[/HIDEREACT][/HIDEREACTSCORE][/HIDEPOSTS]
-[/CENTER]`
-  GM_setClipboard (dump);
-                        try {
-                            document.getElementsByName("message")[0].value = dump;
-                        } catch(err) {
-                            alert('You should be running this in BBCode Mode. Check the Readme for more information!\n' + err);
-                        } finally {
-                            var xf_title_value = document.getElementById("title").value;
-                            if (!xf_title_value){
-                                document.getElementById("title").value = title;
-                            }
-                        }
-}});
+            ddl = ddl.replace(/\ /g, '\n');
+        }
+        ddl = '[HIDEREACT=1,2,3,4,5,6]\n' + ddl + '\n[/HIDEREACT]'
+        if (hidereactscore !== "0"){
+            ddl = `[HIDEREACTSCORE=${hidereactscore}]` + ddl + '[/HIDEREACTSCORE]'
+        }
+        if (hideposts !== "0"){
+            ddl = `[HIDEPOSTS=${hideposts}]` + ddl + '[/HIDEPOSTS]'
+        }
+    GM_xmlhttpRequest({
+        method: "GET",
+        url: link,
+        onload: function(response) {
+            var test = response.responseText;
+            let parser = new DOMParser();
+            let parsedHtml = parser.parseFromString(test, 'text/html');
+            //* Grab all images & find logo *//
+            var images = parsedHtml.getElementsByTagName("img");
+            for (var logoimg of images){
+                var logoattr = logoimg.alt;
+                if (logoattr == "Cover art") {
+                    var logo = "[CENTER][IMG width='100px']" + logoimg.srcset.replace("-rw", '').replace(" 2x",'') + "[/IMG]\n";
+                }
+            }
+            //* App Name *//
+            var title = "[COLOR=rgb(26, 162, 96)][B][SIZE=6]" + parsedHtml.getElementsByClassName("AHFaub")[0].innerText + "[/SIZE][/B][/COLOR]\n";
+            //* rating *//
+            var rating = "[IMG width='40px']https://i.postimg.cc/g28wfSTs/630px-Green-star-41-108-41-svg.png[/IMG][SIZE=6][B]"+
+            parsedHtml.getElementsByClassName("BHMmbe")[0].innerText + "/5[/B]\n";
+            //* Amount of Reviews *//
+            var reviewscount = "[IMG width='40px']https://i.postimg.cc/L617X3tq/Webp-net-resizeimage.png[/IMG]"+
+            parsedHtml.getElementsByClassName("O3QoBc hzfjkd")[0].nextSibling.innerHTML + "[/SIZE][/CENTER]\n";
+            //* Grab SS from images (Only grab 3!) *//
+            var screenshots = [];
+            for (var screen of images){
+                var screenattr = screen.alt;
+                if (screenattr == "Screenshot Image") {
+                    if (!screen.dataset | (!screen.dataset.srcset)){
+                        screenshots.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+                    } else {
+                        screenshots.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+                    }
+                }
+                if (screenshots.length == "3") {
+                    break;
+                }
+            }
+            var screens = "";
+            for (var ss of screenshots) {
+                screens += '[IMG width="300px"]'+ss+'[/IMG]';
+            }
+            screens = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Screenshots[/B][/COLOR][/SIZE][/INDENT][CENTER]" + screens + "[/CENTER]\n[hr][/hr]\n"
+            //* App Description *//
+            var description = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Description[/B][/COLOR][/SIZE][/INDENT]\n [SPOILER='App Description']\n" +
+            parsedHtml.getElementsByClassName("DWPxHb")[0].textContent + "\n[/SPOILER]\n[hr][/hr]\n";
+            var dev = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]\n[LIST]\n[*][B]Developer: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
+            var category = "\n[*][B]Category: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
+            var size = "\n[*][B]Size: [/B] " + parsedHtml.getElementsByClassName("htlgb")[3].textContent + " (Taken from the Google Play Store)";
+            var requiredAndroid = "\n[*][B]Required Android Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[9].textContent;
+            var ContentRating = "\n[*][B]Content Rating: [/B] " + parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
+            var LatestPlayStoreVersion = "\n[*][B]Latest Google Play Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[7].textContent + "\n[/LIST]\n";
+            link = "[URL=" + link + "][IMG width='250px']https://i.postimg.cc/mrWtVGwr/image.png[/IMG][/URL]\n[hr][/hr]\n";
+            if (modinfo){
+                modinfo = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Mod Info[/B][/COLOR][/SIZE][/INDENT]\n" + modinfo + "[hr][/hr]\n";
+            } else {
+                modinfo = ""
+            }
+            VT = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Virustotal[/B][/COLOR][/SIZE][/INDENT]\n[DOWNCLOUD]" + VT + "[/DOWNCLOUD]\n[hr][/hr]\n";
+            ddl = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Download Link[/B][/COLOR][/SIZE][/INDENT]\n[CENTER]\n" + ddl + "\n[/CENTER]";
+            var dump = `${logo}${title}${rating}${reviewscount}${screens}${description}${dev}${category}${ContentRating}${requiredAndroid}${size}${LatestPlayStoreVersion}${link}${modinfo}${VT}`
+            GM_setClipboard (dump);
+            try {
+                document.getElementsByName("message")[0].value = dump;
+            } catch(err) {
+                alert('You should be running this in BBCode Mode. Check the Readme for more information!\n' + err);
+            } finally {
+                var xf_title_value = document.getElementById("title").value;
+                if (!xf_title_value){
+                    document.getElementById("title").value = title;
+                }
+            }
+        }
+    });}
 });
 
 //--- CSS styles make it work...
