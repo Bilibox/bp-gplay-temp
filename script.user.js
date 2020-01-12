@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Blackpearl APK Scrapper
-// @version     1.0.0
+// @version     1.0.1
 // @description Android App Template
 // @author      BlackpearlBot
 // @icon        https://blackpearl.biz/favicon.png
@@ -16,8 +16,9 @@ var Generate_Template = `
 <div id="gmPopupContainer">
 <a href='javascript:void(0)' onclick='$("#gmPopupContainer").hide ();' class="close"></a>
 <form>
-<input type="text" id="gplaylink" value="" class="field" placeholder="Enter Link of APK" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Link of APK'"
-<input type="text" id="screensLinks" value="" class="field" placeholder="Screenshot Links" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Screenshot Links'">
+<input type="text" id="gplaylink" value="" class="field" placeholder="Enter Link of APK" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Link of APK'">
+<input type="text" id="modinfo" value="" class="field" placeholder="Details about the mod" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Details about the mod'">
+<input type="text" id="virustotal" value="" class="field" placeholder="VirusTotal Link" onfocus="this.placeholder = ''" onblur="this.placeholder = 'VirusTotal Link'">
 <input type="text" id="ddl" value="" class="field" placeholder="Download Link" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Download Link'">
 <span>DownCloud</span>
 <label class="switch">
@@ -36,55 +37,104 @@ $("body").append (Generate_Template);
     //--- Use jQuery to activate the dialog buttons.
 $("#gmAddNumsBtn").click ( function () {
     var link = $("#gplaylink").val();
+    var modinfo = $("#modinfo").val();
+    var VT = $("#virustotal").val();
     var ddl = $("#ddl").val ();
     var hidereactscore = $("#HideReactScore").val ();
     var hideposts = $("#HidePosts").val ();
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: link,
-        onload: function(response) {
-            var test = response.responseText;
-            let parser = new DOMParser();
-            let parsedHtml = parser.parseFromString(test, 'text/html');
-            var images = parsedHtml.getElementsByTagName("img");
-            for (var logoimg of images){
-                var logoattr = logoimg.alt;
-                if (logoattr == "Cover art") {
-                    var logo = logoimg.srcset.replace("-rw", '').replace(" 2x",'');
-                }
-            }
-            var title = parsedHtml.getElementsByClassName("AHFaub")[0].innerText;
-            var dev = parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
-            var category = parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
-            var screens = [];
-            for (var screen of images){
-                var screenattr = screen.alt;
-                if (screenattr == "Screenshot Image") {
-                    if (!screen.dataset | (!screen.dataset.srcset)){
-                        screens.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
-                    } else {
-                        screens.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
-                    }
-                }
-            }
-            var discription = parsedHtml.getElementsByClassName("DWPxHb")[0].textContent;
-            var rating = parsedHtml.getElementsByClassName("BHMmbe")[0].innerText;
-            console.log("Logo is ~~~~"+logo);
-            console.log("Title is ~~~~"+title);
-            console.log("Screenshots are  ~~" + screens);
-            console.log("Developer is ~~~~"+dev);
-            console.log("Category name is ~~~~"+category);
-            console.log("Discription is ~~~~"+discription);
-            console.log("Rating is ~~~~"+rating);
-        }});
+GM_xmlhttpRequest({
+method: "GET",
+url: link,
+onload: function(response) {
+var test = response.responseText;
+let parser = new DOMParser();
+let parsedHtml = parser.parseFromString(test, 'text/html');
+var images = parsedHtml.getElementsByTagName("img");
+for (var logoimg of images){
+    var logoattr = logoimg.alt;
+        if (logoattr == "Cover art") {
+            var logo = logoimg.srcset.replace("-rw", '').replace(" 2x",'');
+        }
+}
+var title = parsedHtml.getElementsByClassName("AHFaub")[0].innerText;
+var dev = parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
+var category = parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
+var screens = [];
+for (var screen of images){
+    var screenattr = screen.alt;
+    if (screenattr == "Screenshot Image") {
+        if (!screen.dataset | (!screen.dataset.srcset)){
+            screens.push(screen.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+        } else {
+            screens.push(screen.dataset.srcset.replace("-rw", '').replace(" 2x",'') + '\n');
+          }
+    }
+}
+var SL = screens.length;
+var Sc = "";
+  for (var i=0; i<SL; i++) {
+  Sc += '[IMG width="300px"]'+screens[i]+'[/IMG]';
+  
+  }
+var discription = parsedHtml.getElementsByClassName("DWPxHb")[0].textContent;
+var rating = parsedHtml.getElementsByClassName("BHMmbe")[0].innerText;
+  
+var reviewscount = parsedHtml.getElementsByClassName("O3QoBc hzfjkd")[0].nextSibling.innerHTML;
+var size = parsedHtml.getElementsByClassName("htlgb")[3].textContent;
+var requiredAndroid = parsedHtml.getElementsByClassName("htlgb")[9].textContent;
+var ContentRating = parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
+var LatestPlayStoreVersion = parsedHtml.getElementsByClassName("htlgb")[7].textContent;
+var dump = `[CENTER][IMG width="100px"]${logo}[/IMG]
+[COLOR=rgb(26, 162, 96)][B][SIZE=6] ${title}[/SIZE][/B][/COLOR]
+[IMG width="30px"]https://i.postimg.cc/g28wfSTs/630px-Green-star-41-108-41-svg.png[/IMG][SIZE=6][B]${rating}[/B]/5
+[IMG width="40px"]https://i.postimg.cc/kg6NDvhR/person-male.png[/IMG]${reviewscount}[/SIZE]
+[/CENTER]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Screenshots[/B][/COLOR][/SIZE][/INDENT]
+[CENTER]${Sc}[/CENTER]
 
+[hr][/hr]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Description[/B][/COLOR][/SIZE][/INDENT]
+[SPOILER='App Description']
+${discription}
+[/SPOILER]
+[hr][/hr]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]
+
+[LIST]
+[*][B]Developer: [/B] ${dev}
+[*][B]Category: [/B] ${category}
+[*][B]Content Rating: [/B] ${ContentRating}
+[*][B]Required Android Version: [/B] ${requiredAndroid}
+[*][B]Size: [/B] ${size}
+[*][B]Latest Google Play Version: [/B] ${LatestPlayStoreVersion}
+[URL=${link}][IMG width="250px"]https://i.postimg.cc/mrWtVGwr/image.png[/IMG][/URL]
+[/LIST]
+[hr][/hr]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Mod Info[/B][/COLOR][/SIZE][/INDENT]
+${modinfo}
+[hr][/hr]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Virustotal[/B][/COLOR][/SIZE][/INDENT]
+[DOWNCLOUD]${VT}[/DOWNCLOUD]
+[hr][/hr]
+[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]Download Link[/B][/COLOR][/SIZE][/INDENT]
+[CENTER][HIDEPOSTS=1][HIDEREACTSCORE=10][HIDEREACT=1,2,3,4,5,6]
+[DOWNCLOUD]drive.google.com[/DOWNCLOUD]
+[/HIDEREACT][/HIDEREACTSCORE][/HIDEPOSTS]
+[/CENTER]`
+  GM_setClipboard (dump);
+                        $(`#myNumberSum`).text (`Copied! Just paste on Blackpearl.biz`);
+                        document.getElementsByName("message")[0].value = dump;
+}});  
+  
+  
+  
 });
 
 $(document).on('keydown', function(event) {
-    if (event.key == "Escape") {
-        $("#gmPopupContainer").hide ();
-    }
-});
+       if (event.key == "Escape") {
+           $("#gmPopupContainer").hide ();
+       }
+   });
 
 //--- CSS styles make it work...
 GM_addStyle ( "                                                   \
@@ -125,6 +175,27 @@ GM_addStyle ( "                                                   \
       /* Reactscore & Posts */                                    \
       input[type=number]{                                         \
             border-bottom:          2px solid teal;               \
+            border-image: linear-gradient(to right, #11998e,#38ef7d);\
+            border-image-slice:     1;                            \
+      }                                                           \
+      /* Imdb search */                                           \
+      input[id=searchID]{                                         \
+            font-family:            inherit;                      \
+            width:                  100%;                         \
+            border:                 0;                            \
+            border-bottom:          2px solid #9b9b9b;            \
+            outline:                0;                            \
+            font-size:              1.3rem;                       \
+            color:                  white;                        \
+            padding:                7px 0;                        \
+            background:             transparent;                  \
+            transition:             border-color 0.2s;            \
+      }                                                           \
+      input[id=searchID]:focus {                                  \
+            padding-bottom:         6px;                          \
+            border-bottom:          2px solid teal;               \
+            font-weight:            700;                          \
+            border-width:           3px;                          \
             border-image: linear-gradient(to right, #11998e,#38ef7d);\
             border-image-slice:     1;                            \
       }                                                           \
@@ -264,6 +335,26 @@ GM_addStyle ( "                                                   \
         }                                                         \
       input[type=number]{                                         \
             border-bottom:          2px solid teal;               \
+            border-image: linear-gradient(to right, #11998e,#38ef7d);\
+            border-image-slice:     1;                            \
+      }                                                           \
+      input[id=searchID]{                                         \
+            font-family:            inherit;                      \
+            width:                  100%;                         \
+            border:                 0;                            \
+            border-bottom:          2px solid #9b9b9b;            \
+            outline:                0;                            \
+            font-size:              1.3rem;                       \
+            color:                  white;                        \
+            padding:                7px 0;                        \
+            background:             transparent;                  \
+            transition:             border-color 0.2s;            \
+      }                                                           \
+      input[id=searchID]:focus {                                  \
+            padding-bottom:         6px;                          \
+            border-bottom:          2px solid teal;               \
+            font-weight:            700;                          \
+            border-width:           3px;                          \
             border-image: linear-gradient(to right, #11998e,#38ef7d);\
             border-image-slice:     1;                            \
       }                                                           \
