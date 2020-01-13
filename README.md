@@ -22,7 +22,7 @@ Input the Google Play Store Link of the App you wish to post.
 Enter the Mod details given by your source *The Modder*
 
 ### 4.
-Enter the ![Virustotal](https://www.virustotal.com/) link of the APK. Do NOT enter a Virustotal Link of a URL.
+Enter the [Virustotal](https://www.virustotal.com/) link of the APK. Do NOT enter a Virustotal Link of a URL.
 
 ### 5.
 Enter your download link. Be sure it's one of the accepted file hosts. You can see all the allowed filehosts [HERE](https://blackpearl.biz/faq/#faq10)
