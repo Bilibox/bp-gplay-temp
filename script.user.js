@@ -2,7 +2,7 @@
 // @name        Blackpearl APK Scrapper
 // @version     1.0.2
 // @description Android App Template
-// @author      BlackpearlBot
+// @author      Blackpearl_Team
 // @icon        https://blackpearl.biz/favicon.png
 // @include     https://blackpearl.biz/forums/94/post-thread/
 // @require     https://code.jquery.com/jquery-3.4.1.min.js
