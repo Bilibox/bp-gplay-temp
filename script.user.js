@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name        Blackpearl APK Scrapper
-// @version     1.0.2
+// @name        Blackpearl Android Template Generator
+// @version     1.0.0
 // @description Android App Template
 // @author      Blackpearl_Team
 // @icon        https://blackpearl.biz/favicon.png
