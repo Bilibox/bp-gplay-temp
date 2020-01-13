@@ -16,6 +16,7 @@ First you'll want to navigate to the Android Section and start to post a thread.
 
 ### 2.
 Input the Google Play Store Link of the App you wish to post. 
+
 `https://play.google.com/store/apps/details?id=com.rovio.angrybirdsrio`
 
 ### 3.
