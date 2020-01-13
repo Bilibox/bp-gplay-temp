@@ -4,7 +4,7 @@
 // @description Android App Template
 // @author      BlackpearlBot
 // @icon        https://blackpearl.biz/favicon.png
-// @include     https://blackpearl.biz/*
+// @include     https://blackpearl.biz/forums/94/post-thread/
 // @require     https://code.jquery.com/jquery-3.4.1.min.js
 // @grant       GM_addStyle
 // @grant       GM_xmlhttpRequest
@@ -142,7 +142,7 @@ $("#Generate").click ( function () {
                     parsedHtml.getElementsByClassName("DWPxHb")[0].textContent + "\n[/SPOILER]\n[hr][/hr]\n";
                 var dev = "[INDENT][SIZE=6][COLOR=rgb(26, 162, 96)][B]App Details[/B][/COLOR][/SIZE][/INDENT]\n[LIST]\n[*][B]Developer: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[0].innerText;
                 var category = "\n[*][B]Category: [/B] " + parsedHtml.getElementsByClassName("T32cc UAO9ie")[1].innerText;
-                var ContentRating = "\n[*][B]Content Rating: [/B] " + parsedHtml.getElementsByClassName("htlgb")[11].innerText.split("\n")[0];
+                var ContentRating = "\n[*][B]Content Rating: [/B] " + parsedHtml.getElementsByClassName("KmO8jd")[0].innerText.split("\n")[0];
                 var requiredAndroid = "\n[*][B]Required Android Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[9].textContent;
                 var size = "\n[*][B]Size: [/B] " + parsedHtml.getElementsByClassName("htlgb")[3].textContent + " (Taken from the Google Play Store)";
                 var LatestPlayStoreVersion = "\n[*][B]Latest Google Play Version: [/B] " + parsedHtml.getElementsByClassName("htlgb")[7].textContent + "\n[/LIST]\n";
